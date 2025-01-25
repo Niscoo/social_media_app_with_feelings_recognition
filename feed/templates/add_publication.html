@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ajouter un Publication</title>
+</head>
+<body>
+    <h1>Ajouter une Publication</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Envoyer</button>
+    </form>
+    <a href="{% url 'publication_list' %}">Retour à la liste des Publications</a>
+</body>
+</html>

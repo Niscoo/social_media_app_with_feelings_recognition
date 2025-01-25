@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Publications{% endblock %}
+
+{% block content %}
+<style>
+    /* Thème principal */
+    :root {
+        --primary-color: #1877f2;
+        --success-color: #42b72a;
+        --danger-color: #dc3545;
+        --background-color: #f0f2f5;
+        --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .container {
+        max-width: 680px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    h1 {
+        text-align: center;
+        color: #1d2129;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        font-weight: 700;
+    }
+
+    /* Carte de publication */
+    .publication-list {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .publication-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.2s ease;
+        position: relative;
+    }
+
+    .publication-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .publication-content {
+        font-size: 1.1rem;
+        color: #050505;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    /* Sentiment */
+    .sentiment-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .positive {
+        background: #e7f3ff;
+        color: var(--primary-color);
+    }
+
+    .negative {
+        background: #fee7e7;
+        color: var(--danger-color);
+    }
+
+    /* Bouton flottant */
+    .fab {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: var(--primary-color);
+        color: white;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .fab:hover {
+        background: #166fe5;
+        transform: scale(1.1);
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(3px);
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: white;
+        margin: 5% auto;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 12px;
+        padding: 2rem;
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1d2129;
+    }
+
+    .close {
+        font-size: 1.5rem;
+        color: #65676b;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .close:hover {
+        color: #1d2129;
+    }
+
+    /* Formulaire */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e4e6eb;
+        border-radius: 8px;
+        resize: vertical;
+        min-height: 120px;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+    }
+
+    textarea:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    .btn-submit {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .btn-submit:hover {
+        background: #166fe5;
+    }
+
+    /* Messages */
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+        display: none;
+    }
+
+    .alert-success {
+        background: #e7f3ff;
+        color: var(--primary-color);
+    }
+
+    .alert-error {
+        background: #fee7e7;
+        color: var(--danger-color);
+    }
+
+    /* Actions des publications */
+    .publication-actions {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e4e6eb;
+        margin-top: 1rem;
+    }
+
+    .like-btn, .comment-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        background: #f0f2f5;
+        color: #606770;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .like-btn:hover {
+        background: #e7f3ff;
+        color: var(--primary-color);
+    }
+
+    .comment-btn:hover {
+        background: #e7f3ff;
+        color: var(--primary-color);
+    }
+
+    .like-btn.active {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .comment-btn.active {
+        background: var(--primary-color);
+        color: white;
+    }
+</style>
+
+<div class="container">
+    <h1>📝 Fil d'actualité</h1>
+
+    <div class="publication-list">
+        {% for publication in publications %}
+        <div class="publication-card">
+            <div class="publication-content">
+                {{ publication.content }}
+            </div>
+            
+            <div class="publication-actions">
+                <button class="like-btn" onclick="toggleLike(this)">
+                    <i class="far fa-thumbs-up"></i> Like
+                </button>
+                <button class="comment-btn" onclick="toggleComment(this)">
+                    <i class="far fa-comment"></i> Commenter
+                </button>
+            </div>
+            
+            <div class="sentiment-badge {% if publication.sentiment == "['positive']" %}positive{% else %}negative{% endif %}">
+                {% if publication.sentiment == "['positive']" %}
+                    👍 Positif
+                {% else %}
+                    👎 Négatif
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Bouton flottant -->
+    <div class="fab" id="openModalBtn">
+        <i class="fas fa-plus fa-lg"></i>
+    </div>
+
+    <!-- Modal -->
+    <div id="addPublicationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Créer une publication</h2>
+                <span class="close" id="closeModalBtn">&times;</span>
+            </div>
+            <form id="publicationForm" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <textarea name="content" placeholder="Quoi de neuf ?" required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Publier</button>
+            </form>
+            <div class="alert" id="responseMessage"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Gestion des messages
+    function showMessage(type, text, duration = 3000) {
+        const messageEl = document.getElementById('responseMessage');
+        messageEl.className = `alert alert-${type}`;
+        messageEl.textContent = text;
+        messageEl.style.display = 'block';
+        
+        if (duration) {
+            setTimeout(() => {
+                messageEl.style.opacity = 0;
+                setTimeout(() => messageEl.style.display = 'none', 300);
+            }, duration);
+        }
+    }
+
+    // Soumission du formulaire
+    document.getElementById('publicationForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = document.getElementById('publicationForm');
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch("{% url 'add_publication' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Erreur HTTP! Statut: ${response.status}`);
+
+            const data = await response.json();
+
+            if (data.success) {
+                const newPublication = document.createElement('div');
+                newPublication.className = 'publication-card';
+                newPublication.innerHTML = `
+                    <div class="publication-content">${data.publication.content}</div>
+                    <div class="sentiment-badge ${data.publication.sentiment}">
+                        ${data.publication.sentiment === 'positive' ? '👍 Positif' : '👎 Négatif'}
+                    </div>
+                `;
+
+                document.querySelector('.publication-list').prepend(newPublication);
+                form.reset();
+                showMessage('success', 'Publication réussie !');
+                setTimeout(() => document.getElementById('addPublicationModal').style.display = 'none', 1500);
+            } else {
+                showMessage('error', data.error || 'Erreur lors de la publication');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showMessage('error', 'Une erreur critique est survenue');
+        }
+    });
+
+    // Gestion de l'ouverture/fermeture de la modal
+    document.getElementById('openModalBtn').addEventListener('click', () => {
+        document.getElementById('addPublicationModal').style.display = 'block';
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+        document.getElementById('addPublicationModal').style.display = 'none';
+    });
+
+    // Fermer la modal en cliquant à l'extérieur
+    window.onclick = (event) => {
+        if (event.target === document.getElementById('addPublicationModal')) {
+            document.getElementById('addPublicationModal').style.display = 'none';
+        }
+    }
+    function toggleLike(btn) {
+        btn.classList.toggle('active');
+        // Ajouter ici la logique AJAX pour enregistrer le like
+    }
+
+    // Gestion des commentaires
+    function toggleComment(btn) {
+        btn.classList.toggle('active');
+        // Ajouter ici la logique d'affichage des commentaires
+    }
+</script>
+
+{% endblock %}

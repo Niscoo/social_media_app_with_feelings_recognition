@@ -1,0 +1,153 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mon Application{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .navbar {
+            background-color: #ffffff;
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-section {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1877f2;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            color: #65676b;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: #f0f2f5;
+            color: #1877f2;
+        }
+
+        .nav-link.active {
+            color: #1877f2;
+            position: relative;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            background-color: #1877f2;
+            border-radius: 50%;
+        }
+
+        .search-bar {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid #dddfe2;
+            background-color: #f0f2f5;
+            width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+        }
+
+        .user-profile {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e4e6eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <!-- Section gauche -->
+        <div class="nav-section">
+            <a href="{% url 'publication_list' %}" class="nav-brand">SocialApp</a>
+        </div>
+
+        <!-- Section centrale -->
+        <div class="nav-section">
+            <a href="{% url 'publication_list' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                <span>Accueil</span>
+            </a>
+            <a href="{% url 'add_publication' %}" class="nav-link {% if request.path == '/add/' %}active{% endif %}">
+                <i class="fas fa-plus-square"></i>
+                <span>Créer</span>
+            </a>
+        </div>
+
+        <!-- Section droite -->
+        <div class="nav-section">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Rechercher...">
+            </div>
+            <div class="user-profile">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
